@@ -68,22 +68,6 @@ public class Extractor {
         }
     }
 
-//    private static int findSignature(byte[] buffer, int bytesRead, byte[] header) {
-//        for (int i = 0; i < bytesRead - header.length; i++) {
-//            boolean match = true;
-//            for (int j = 0; j < header.length; j++) {
-//                if (buffer[i + j] != header[j]) {
-//                    match = false;
-//                    break;
-//                }
-//            }
-//            if (match) {
-//                return i;
-//            }
-//        }
-//        return -1;
-//    }
-
     private static int findSignature(byte[] buffer, int bytesRead, byte[] tail, int startIndex) {
         for (int i = startIndex; i < bytesRead - tail.length; i++) {
             boolean match = true;
