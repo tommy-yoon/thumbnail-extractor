@@ -25,6 +25,8 @@ public class Extractor {
             byte[] buffer = new byte[1024];
             byte[] header = JPG_HEADER;
             byte[] footer = JPG_FOOTER;
+//            byte[] header = PNG_HEADER;
+//            byte[] footer = PNG_FOOTER;
             long fileLength = file.length();
             long headerPosition = -1;
 
