@@ -1,6 +1,11 @@
 import java.io.*;
 
 public class Extractor {
+	private static final byte[] JPG_HEADER = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0};
+	private static final byte[] JPG_FOOTER = {(byte) 0xFF, (byte) 0xD9};
+	private static final byte[] PNG_HEADER = {(byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47, (byte) 0x0D, (byte) 0x0A, (byte) 0x1A, (byte) 0x0A};
+	private static final byte[] PNG_FOOTER = {(byte) 0x49, (byte) 0x45, (byte) 0x4E, (byte) 0x44, (byte) 0xAE, (byte) 0x42, (byte) 0x60, (byte) 0x82};
+    
     public static void main(String[] args) {
     	 String sourceFileName = "";
     	if (args.length < 1) {
@@ -18,13 +23,13 @@ public class Extractor {
         try {
             RandomAccessFile file = new RandomAccessFile(sourceFileName, "r");
             byte[] buffer = new byte[1024];
-            byte[] header = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0};
-            byte[] tail = {(byte) 0xFF, (byte) 0xD9};
+            byte[] header = JPG_HEADER;
+            byte[] footer = JPG_FOOTER;
             long fileLength = file.length();
             long headerPosition = -1;
 
             // if the file is not empty and the current pointer(plus header&tail's length) didn't reach EOF
-            while (currentPosition + header.length + tail.length -1 < fileLength) { // EOF?
+            while (currentPosition + header.length + footer.length -1 < fileLength) { // EOF?
                 file.seek(currentPosition);
                 bytesRead = file.read(buffer);
 
@@ -39,20 +44,20 @@ public class Extractor {
 						bytesRead = file.read(buffer);
 						
 						// find tail
-						int tailIndex = findSignature(buffer, bytesRead, tail, header.length);
+						int tailIndex = findSignature(buffer, bytesRead, footer, header.length);
 						if (tailIndex != -1) { // found tail?
 							// Save the image data between the header and tail
 							saveImageData(sourceFileName, fileNamePrefix + fileNameIndex++ + "." + fileNameExtension,
-									headerPosition, currentPosition + tailIndex + tail.length);
+									headerPosition, currentPosition + tailIndex + footer.length);
 							// reset header position
 							headerPosition = -1;
 							// push forward the current position
-							currentPosition += tailIndex + tail.length;
+							currentPosition += tailIndex + footer.length;
 						} else {
 							// The tail bytes can be fragmented across two buffer windows
 		            		// To solve the issue, push back the starting pointer 
 							currentPosition += bytesRead;
-							currentPosition -= tail.length - 1;
+							currentPosition -= footer.length - 1;
 						} 
 					}
             	} else {
